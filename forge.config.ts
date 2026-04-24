@@ -38,7 +38,11 @@ const config: ForgeConfig = {
       renderer: [
         {
           name: 'main_window',
-          config: 'vite.renderer.config.ts',
+          config: 'vite.main-window.config.ts',
+        },
+        {
+          name: 'capture_window',
+          config: 'vite.capture-window.config.ts',
         },
       ],
     }),

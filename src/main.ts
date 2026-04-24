@@ -1,45 +1,143 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
+declare const MAIN_WINDOW_VITE_NAME: string;
+declare const CAPTURE_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
+declare const CAPTURE_WINDOW_VITE_NAME: string;
+
 if (started) {
   app.quit();
 }
 
-const createWindow = () => {
-  const mainWindow = new BrowserWindow({
-    width: 1180,
-    height: 760,
+let mainWindow: BrowserWindow | null = null;
+let captureWindow: BrowserWindow | null = null;
+
+const preloadPath = () => path.join(__dirname, 'preload.js');
+
+const loadRenderer = (
+  window: BrowserWindow,
+  devServerUrl: string | undefined,
+  rendererName: string,
+  htmlFile: string,
+) => {
+  if (devServerUrl) {
+    window.loadURL(`${devServerUrl}/${htmlFile}`);
+    return;
+  }
+
+  window.loadFile(path.join(__dirname, `../renderer/${rendererName}/${htmlFile}`));
+};
+
+const createMainWindow = () => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show();
+    mainWindow.focus();
+    return mainWindow;
+  }
+
+  mainWindow = new BrowserWindow({
+    width: 1120,
+    height: 740,
     minWidth: 920,
     minHeight: 620,
-    backgroundColor: '#060807',
-    title: 'Cell',
+    backgroundColor: '#050706',
+    title: 'Cell 母体',
     autoHideMenuBar: true,
+    show: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath(),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-  } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
-  }
+  loadRenderer(
+    mainWindow,
+    MAIN_WINDOW_VITE_DEV_SERVER_URL,
+    MAIN_WINDOW_VITE_NAME,
+    'main.html',
+  );
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show();
+  });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+
+  return mainWindow;
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+const createCaptureWindow = () => {
+  if (captureWindow && !captureWindow.isDestroyed()) {
+    captureWindow.show();
+    captureWindow.focus();
+    return captureWindow;
+  }
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+  captureWindow = new BrowserWindow({
+    width: 520,
+    height: 236,
+    minWidth: 460,
+    minHeight: 212,
+    maxWidth: 720,
+    maxHeight: 360,
+    backgroundColor: '#050706',
+    title: 'Cell 捕捉',
+    autoHideMenuBar: true,
+    resizable: true,
+    show: false,
+    webPreferences: {
+      preload: preloadPath(),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  loadRenderer(
+    captureWindow,
+    CAPTURE_WINDOW_VITE_DEV_SERVER_URL,
+    CAPTURE_WINDOW_VITE_NAME,
+    'capture.html',
+  );
+
+  captureWindow.once('ready-to-show', () => {
+    captureWindow?.show();
+  });
+
+  captureWindow.on('closed', () => {
+    captureWindow = null;
+  });
+
+  return captureWindow;
+};
+
+app.on('ready', () => {
+  createMainWindow();
+  createCaptureWindow();
+});
+
+ipcMain.on('capture:create-cell', (_event, content: string) => {
+  const trimmedContent = content.trim();
+
+  if (!trimmedContent) {
+    return;
+  }
+
+  const targetWindow = createMainWindow();
+  targetWindow.webContents.send('main:add-cell', {
+    content: trimmedContent,
+    createdAt: Date.now(),
+  });
+});
+
+ipcMain.on('capture:open-main', () => {
+  createMainWindow();
+});
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -47,12 +145,8 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createMainWindow();
+    createCaptureWindow();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.

@@ -29,7 +29,13 @@ button {
   color: inherit;
 }
 
-.cell-shell {
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.main-shell {
   position: relative;
   width: 100%;
   height: 100%;
@@ -59,12 +65,6 @@ button {
 
 .quiet-mark {
   color: rgba(226, 250, 235, 0.68);
-}
-
-h1,
-h2,
-p {
-  margin: 0;
 }
 
 .organism-field {
@@ -278,8 +278,9 @@ p {
 }
 
 .layer-head button,
-.capture-actions button,
-.capture-trigger {
+.capture-header button,
+.capture-placeholders button,
+.store-button {
   border: 1px solid rgba(135, 223, 176, 0.18);
   border-radius: 8px;
   background: rgba(20, 50, 39, 0.72);
@@ -353,119 +354,117 @@ p {
   line-height: 1.65;
 }
 
-.capture-dock {
-  position: absolute;
-  left: 50%;
-  bottom: 26px;
-  z-index: 10;
-  transform: translateX(-50%);
-}
-
-.capture-trigger {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
+.capture-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   gap: 12px;
-  min-width: 190px;
-  height: 58px;
-  justify-content: center;
-  padding: 0 20px;
-  border-color: rgba(151, 239, 187, 0.28);
-  border-radius: 999px;
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  overflow: hidden;
   background:
-    radial-gradient(circle at 20% 50%, rgba(135, 243, 172, 0.32), transparent 28%),
-    linear-gradient(135deg, rgba(42, 107, 76, 0.94), rgba(15, 34, 28, 0.94));
-  box-shadow:
-    0 18px 54px rgba(0, 0, 0, 0.4),
-    0 0 54px rgba(97, 217, 151, 0.22);
+    radial-gradient(circle at 18% 44%, rgba(102, 224, 153, 0.2), transparent 34%),
+    linear-gradient(135deg, #050706 0%, #0c1210 100%);
 }
 
-.capture-trigger::before {
+.capture-header,
+.capture-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.capture-header span {
+  display: block;
+  color: #eefbf3;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.capture-header p {
+  margin-top: 3px;
+  color: rgba(176, 207, 193, 0.52);
+  font-size: 12px;
+}
+
+.capture-header button,
+.capture-placeholders button {
+  height: 32px;
+  padding: 0 10px;
+  color: rgba(227, 247, 234, 0.74);
+  font-size: 12px;
+}
+
+.capture-console {
+  position: relative;
+  min-height: 88px;
+  overflow: hidden;
+  border: 1px solid rgba(142, 224, 182, 0.18);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(151, 248, 182, 0.18), transparent 26%),
+    rgba(3, 8, 7, 0.72);
+  box-shadow: inset 0 0 36px rgba(94, 213, 141, 0.05);
+}
+
+.capture-core {
   position: absolute;
-  inset: -12px;
-  content: "";
-  border: 1px solid rgba(135, 230, 169, 0.08);
-  border-radius: inherit;
-}
-
-.capture-orb {
-  width: 20px;
-  height: 20px;
+  top: 50%;
+  left: 18px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #b7f8c8;
   box-shadow: 0 0 24px rgba(157, 247, 190, 0.78);
+  transform: translateY(-50%);
 }
 
-.capture-label {
-  color: #effbf3;
-  font-size: 14px;
-  font-weight: 620;
-}
-
-.capture-dock.is-open {
-  width: min(560px, calc(100vw - 120px));
-}
-
-.capture-terminal {
+.capture-console textarea {
   position: relative;
-  padding: 16px;
-  border: 1px solid rgba(142, 224, 182, 0.22);
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(91, 213, 141, 0.14), transparent 42%),
-    rgba(6, 13, 11, 0.94);
-  box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.52),
-    0 0 80px rgba(86, 210, 134, 0.15);
-  backdrop-filter: blur(20px);
-}
-
-.capture-pulse {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(151, 248, 182, 0.28), transparent 66%);
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.capture-terminal textarea {
+  z-index: 1;
   width: 100%;
-  height: 128px;
+  height: 100%;
+  min-height: 88px;
   resize: none;
   border: 0;
-  border-radius: 12px;
   outline: none;
-  background: rgba(3, 8, 7, 0.64);
+  background: transparent;
   color: #effbf3;
-  padding: 16px;
+  padding: 18px 18px 18px 52px;
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
-.capture-terminal textarea::placeholder {
+.capture-console textarea::placeholder {
   color: rgba(162, 195, 181, 0.46);
 }
 
-.capture-actions {
+.capture-placeholders {
   display: flex;
-  justify-content: flex-end;
   gap: 8px;
-  margin-top: 12px;
+  min-width: 0;
 }
 
-.capture-actions button {
-  min-width: 76px;
-  height: 36px;
-  padding: 0 12px;
-  color: rgba(232, 250, 239, 0.82);
+.capture-placeholders button {
+  border-style: dashed;
+  background: rgba(9, 20, 16, 0.62);
+}
+
+.store-button {
+  height: 38px;
+  min-width: 104px;
+  padding: 0 14px;
+  border-color: rgba(151, 239, 187, 0.28);
+  background:
+    radial-gradient(circle at 20% 50%, rgba(135, 243, 172, 0.22), transparent 32%),
+    linear-gradient(135deg, rgba(42, 107, 76, 0.94), rgba(15, 34, 28, 0.94));
+  color: #effbf3;
+  font-weight: 620;
 }
 
 @media (max-width: 980px) {
-  .cell-shell {
+  .main-shell {
     min-width: 760px;
   }
 
